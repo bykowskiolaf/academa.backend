@@ -15,5 +15,6 @@ Academa is a Spring Boot-based application for managing courses, students, and i
 
 ## Installation
 1. Clone the repository.
-2. Run `docker-compose up --build -d ` to start the application.
-3. Access at `http://localhost:8080`.
+2. Copy the `.env.template` file to `.env` and update the environment variables.
+3. Run `docker-compose up --build -d ` to start the application.
+4. Access at `http://localhost:8080`.
