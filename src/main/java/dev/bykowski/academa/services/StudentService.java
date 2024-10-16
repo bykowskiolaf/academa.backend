@@ -1,8 +1,20 @@
+/*
+ * © 2024 bykowski. All rights reserved.
+ *
+ * This file is part of the Academa project.
+ * You may not use this file except in compliance with the project license.
+ *
+ * Created on: 2024-10-16
+ * File: StudentService.java
+ *
+ * Last modified: 2024-10-16 23:43:01
+ */
+
 package dev.bykowski.academa.services;
 
 import dev.bykowski.academa.dtos.Student.CreateStudentDTO;
 import dev.bykowski.academa.dtos.Student.StudentDTO;
-import dev.bykowski.academa.dtos.User.UserDTO;
+import dev.bykowski.academa.exceptions.UserAlreadyExistsException;
 import dev.bykowski.academa.exceptions.UserNotFoundException;
 import dev.bykowski.academa.models.Student;
 import dev.bykowski.academa.repositories.StudentRepository;
@@ -19,12 +31,18 @@ public class StudentService {
     private StudentRepository studentRepository;
 
     public StudentDTO save(CreateStudentDTO studentDTO) {
+        if (studentRepository.existsByEmail(studentDTO.getEmail())) {
+            throw new UserAlreadyExistsException(
+                    String.format("Student with email %s already exists", studentDTO.getEmail())
+            );
+        }
         Student student = Student.builder()
                 .email(studentDTO.getEmail())
-                .name(studentDTO.getName())
-                .role(studentDTO.getRole())
-                .studentId(studentDTO.getStudentId())
-                .studentClass(studentDTO.getStudentClass())
+                .givenName(studentDTO.getGivenName())
+                .familyName(studentDTO.getFamilyName())
+                .picture(studentDTO.getPicture())
+                .locale(studentDTO.getLocale())
+                .roles(studentDTO.getRoles())
                 .build();
         return mapToDTO(studentRepository.save(student));
     }
@@ -45,12 +63,4 @@ public class StudentService {
         return new StudentDTO(student);
     }
 
-    public Student mapToEntity(UserDTO userDTO) {
-        return Student.builder()
-                .uuid(userDTO.getUuid())
-                .email(userDTO.getEmail())
-                .name(userDTO.getName())
-                .role(userDTO.getRole())
-                .build();
-    }
 }
