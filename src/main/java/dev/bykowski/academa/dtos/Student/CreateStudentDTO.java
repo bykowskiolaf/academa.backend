@@ -4,10 +4,10 @@
  * This file is part of the Academa project.
  * You may not use this file except in compliance with the project license.
  *
- * Created on: 2024-10-16
+ * Created on: 2024-10-23
  * File: CreateStudentDTO.java
  *
- * Last modified: 2024-10-16 23:38:55
+ * Last modified: 2024-10-23 17:26:05
  */
 
 package dev.bykowski.academa.dtos.Student;
@@ -24,7 +24,5 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 public class CreateStudentDTO extends CreateUserDTO {
 
-    private String studentId;
-
-    private String studentClass;
+    private String studentClasses;
 }
