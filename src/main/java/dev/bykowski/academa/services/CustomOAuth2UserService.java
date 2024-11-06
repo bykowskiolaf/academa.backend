@@ -4,10 +4,10 @@
  * This file is part of the Academa project.
  * You may not use this file except in compliance with the project license.
  *
- * Created on: 2024-10-23
+ * Created on: 2024-10-30
  * File: CustomOAuth2UserService.java
  *
- * Last modified: 2024-10-23 17:32:39
+ * Last modified: 2024-10-30 16:47:51
  */
 
 package dev.bykowski.academa.services;
@@ -37,9 +37,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    private StudentRepository studentRepository;
+    private final StudentRepository studentRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -64,7 +64,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .picture(oauthUser.getAttribute("picture"))
                     .locale(oauthUser.getAttribute("locale"))
                     .roles(new HashSet<>(Set.of(Role.STUDENT)))
-                    .studentClasses(new HashSet<>())
+                    .studentCourses(new HashSet<>())
                     .build();
 
             studentRepository.save(newStudent);

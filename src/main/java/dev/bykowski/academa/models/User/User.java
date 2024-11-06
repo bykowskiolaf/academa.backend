@@ -4,10 +4,10 @@
  * This file is part of the Academa project.
  * You may not use this file except in compliance with the project license.
  *
- * Created on: 2024-10-27
+ * Created on: 2024-11-06
  * File: User.java
  *
- * Last modified: 2024-10-27 22:59:45
+ * Last modified: 2024-11-06 17:27:08
  */
 
 package dev.bykowski.academa.models.User;
@@ -49,11 +49,12 @@ public abstract class User {
 
     private String locale;
 
-    @NotNull(message = "Password cannot be null")
+
+    @NotNull(message = "Username cannot be null")
     @Column(unique = true)
     private String userName;
 
-    @NotNull(message = "Password cannot be null")
+    @NotNull(message = "Roles cannot be null")
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<Role> roles = new HashSet<>();
 }
