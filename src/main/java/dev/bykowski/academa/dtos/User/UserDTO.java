@@ -4,21 +4,20 @@
  * This file is part of the Academa project.
  * You may not use this file except in compliance with the project license.
  *
- * Created on: 2024-10-23
+ * Created on: 2024-11-09
  * File: UserDTO.java
  *
- * Last modified: 2024-10-23 16:37:12
+ * Last modified: 2024-11-09 14:46:04
  */
 
 package dev.bykowski.academa.dtos.User;
 
-import dev.bykowski.academa.models.User.Role;
+import dev.bykowski.academa.models.User.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Set;
 import java.util.UUID;
 
 @SuperBuilder
@@ -30,8 +29,6 @@ public class UserDTO {
 
     private String email;
 
-    private String userName;
-
     private String givenName;
 
     private String familyName;
@@ -40,5 +37,17 @@ public class UserDTO {
 
     private String locale;
 
-    private Set<Role> roles;
+    private String role;
+
+    public static UserDTO from(User user) {
+        return UserDTO.builder()
+                .uuid(user.getUuid())
+                .email(user.getEmail())
+                .givenName(user.getGivenName())
+                .familyName(user.getFamilyName())
+                .picture(user.getPicture())
+                .locale(user.getLocale())
+                .role(user.getRole().getName())
+                .build();
+    }
 }

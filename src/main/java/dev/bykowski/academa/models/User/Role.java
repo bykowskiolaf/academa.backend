@@ -4,10 +4,10 @@
  * This file is part of the Academa project.
  * You may not use this file except in compliance with the project license.
  *
- * Created on: 2024-11-06
+ * Created on: 2024-11-09
  * File: Role.java
  *
- * Last modified: 2024-11-06 17:07:22
+ * Last modified: 2024-11-09 13:55:26
  */
 
 package dev.bykowski.academa.models.User;
@@ -16,15 +16,13 @@ import lombok.Getter;
 
 @Getter
 public enum Role {
-    STUDENT("STUDENT"),
-    INSTRUCTOR("INSTRUCTOR"),
-    ADMIN("ADMIN");
+    ADMIN("ADMIN"),
+    MODERATOR("INSTRUCTOR"),
+    STUDENT("STUDENT");
 
-    public static final String ADMIN_ROLE = "ADMIN";
+    private final String name;
 
-    private final String role;
-
-    Role(String role) {
-        this.role = role;
+    Role(String name) {
+        this.name = name;
     }
 }
