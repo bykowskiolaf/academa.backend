@@ -1,18 +1,5 @@
-/*
- * © 2024 bykowski. All rights reserved.
- *
- * This file is part of the Academa project.
- * You may not use this file except in compliance with the project license.
- *
- * Created on: 2024-11-09
- * File: StudentController.java
- *
- * Last modified: 2024-11-09 14:19:25
- */
-
 package dev.bykowski.academa.controllers;
 
-import dev.bykowski.academa.dtos.Course.CourseDTO;
 import dev.bykowski.academa.dtos.Student.CreateStudentDTO;
 import dev.bykowski.academa.dtos.Student.StudentDTO;
 import dev.bykowski.academa.exceptions.NotFoundException;
@@ -50,7 +37,7 @@ public class StudentController {
 
     @GetMapping("/{uuid}")
     @RolesAllowed("INSTRUCTOR")
-    public ResponseEntity<StudentDTO> getStudentById(@PathVariable UUID uuid) throws NotFoundException {
+    public ResponseEntity<StudentDTO> getStudentByUuid(@PathVariable UUID uuid) throws NotFoundException {
         StudentDTO student = studentService.getByUuid(uuid);
         return new ResponseEntity<>(student, HttpStatus.OK);
     }
@@ -67,27 +54,6 @@ public class StudentController {
     @RolesAllowed("ADMIN")
     public ResponseEntity<Void> deleteStudent(@PathVariable UUID uuid) {
         studentService.delete(uuid);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @GetMapping("/{studentUuid}/courses")
-    @RolesAllowed("INSTRUCTOR")
-    public ResponseEntity<List<CourseDTO>> getStudentCourses(@PathVariable UUID studentUuid) {
-        List<CourseDTO> studentCourses = studentService.getStudentCourses(studentUuid);
-        return new ResponseEntity<>(studentCourses, HttpStatus.OK);
-    }
-
-    @PostMapping("/{studentUuid}/courses/{courseUuid}")
-    @RolesAllowed({"ADMIN", "INSTRUCTOR"})
-    public ResponseEntity<List<CourseDTO>> assignCourse(@PathVariable UUID studentUuid, @PathVariable UUID courseUuid) {
-        List<CourseDTO> student = studentService.assignCourse(studentUuid, courseUuid);
-        return new ResponseEntity<>(student, HttpStatus.OK);
-    }
-
-    @DeleteMapping("/{studentUuid}/courses/{courseUuid}")
-    @RolesAllowed({"ADMIN", "INSTRUCTOR"})
-    public ResponseEntity<Void> unAssignStudent(@PathVariable UUID studentUuid, @PathVariable UUID courseUuid) {
-        studentService.unassignCourse(studentUuid, courseUuid);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

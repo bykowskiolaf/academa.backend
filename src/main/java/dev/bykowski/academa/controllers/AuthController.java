@@ -32,7 +32,7 @@ public class AuthController {
     public ResponseEntity<UserDTO> register(
             @Valid @RequestBody RegisterUserDTO userDTO
     ) {
-        return new ResponseEntity<>(userService.registerUser(userDTO), HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.register(userDTO), HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
@@ -43,10 +43,10 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        UserDTO userDTO = UserDTO.from(userService.getUserByEmail(loginDTO.getEmail()));
+        UserDTO userDTO = UserDTO.from(userService.getByEmail(loginDTO.getEmail()));
 
         request.getSession(true);
-        
+
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 

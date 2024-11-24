@@ -1,6 +1,7 @@
 package dev.bykowski.academa.models.Course;
 
 import dev.bykowski.academa.models.Student;
+import dev.bykowski.academa.models.User.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -25,6 +26,11 @@ public class Course {
     private String name;
 
     private String description;
+
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User instructor;
 
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
