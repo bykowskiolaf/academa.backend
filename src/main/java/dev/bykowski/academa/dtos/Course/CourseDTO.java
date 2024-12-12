@@ -1,15 +1,3 @@
-/*
- * © 2024 bykowski. All rights reserved.
- *
- * This file is part of the Academa project.
- * You may not use this file except in compliance with the project license.
- *
- * Created on: 2024-10-30
- * File: CourseDTO.java
- *
- * Last modified: 2024-10-30 17:28:11
- */
-
 package dev.bykowski.academa.dtos.Course;
 
 import dev.bykowski.academa.models.Course.Course;
@@ -27,12 +15,15 @@ public class CourseDTO {
 
     private String name;
 
-    private String description;
+    private String shortDescription;
+
+    private String picture;
 
     public CourseDTO(Course course) {
         this.uuid = course.getUuid();
         this.name = course.getName();
-        this.description = course.getDescription();
+        this.shortDescription = course.getShortDescription();
+        this.picture = course.getPicture();
     }
 
     public CourseDTO mapToDTO(Course course) {

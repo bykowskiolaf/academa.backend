@@ -2,6 +2,7 @@ package dev.bykowski.academa.services;
 
 import dev.bykowski.academa.dtos.Course.CourseDTO;
 import dev.bykowski.academa.dtos.Course.CreateCourseDTO;
+import dev.bykowski.academa.dtos.Course.FullCourseDTO;
 import dev.bykowski.academa.exceptions.NotFoundException;
 import dev.bykowski.academa.models.Course.Course;
 import dev.bykowski.academa.models.Student;
@@ -9,6 +10,9 @@ import dev.bykowski.academa.models.User.User;
 import dev.bykowski.academa.repositories.CourseRepository;
 import dev.bykowski.academa.repositories.StudentRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,9 +34,15 @@ public class CourseService {
                 .collect(Collectors.toList());
     }
 
-    public CourseDTO getByUuid(UUID uuid) {
+    public Page<CourseDTO> getPaginatedCourses(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        return courseRepository.findAll(pageable)
+                .map(this::mapToDTO);
+    }
+
+    public FullCourseDTO getByUuid(UUID uuid) {
         return courseRepository.findById(uuid)
-                .map(this::mapToDTO)
+                .map(FullCourseDTO::new)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
     }
 
@@ -47,8 +57,10 @@ public class CourseService {
 
         Course course = Course.builder()
                 .name(createCourseDTO.getName())
-                .description(createCourseDTO.getDescription())
+                .shortDescription(createCourseDTO.getShortDescription())
+                .longDescription(createCourseDTO.getLongDescription())
                 .instructor(instructor)
+                .picture(createCourseDTO.getPicture())
                 .build();
 
         System.out.println(course);
@@ -59,7 +71,8 @@ public class CourseService {
         Course course = courseRepository.findById(uuid)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
         course.setName(createCourseDTO.getName());
-        course.setDescription(createCourseDTO.getDescription());
+        course.setShortDescription(createCourseDTO.getShortDescription());
+        course.setLongDescription(createCourseDTO.getLongDescription());
         return mapToDTO(courseRepository.save(course));
     }
 

@@ -65,8 +65,8 @@ class CourseControllerTest {
     @Test
     @WithMockUser(roles = "INSTRUCTOR", username = "test@bykowski.dev")
     void shouldCreateCourse() throws Exception {
-        CreateCourseDTO createCourseDTO = new CreateCourseDTO("New Course", "Course Description");
-        CourseDTO courseDTO = new CourseDTO(UUID.randomUUID(), createCourseDTO.getName(), createCourseDTO.getDescription());
+        CreateCourseDTO createCourseDTO = new CreateCourseDTO("New Course", "Course short description", "Course long description", "https://image.url");
+        CourseDTO courseDTO = new CourseDTO(UUID.randomUUID(), createCourseDTO.getName(), createCourseDTO.getShortDescription(), createCourseDTO.getPicture());
 
         User instructor = User.builder()
                 .uuid(UUID.randomUUID())
@@ -82,15 +82,17 @@ class CourseControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.uuid").value(courseDTO.getUuid().toString()))
                 .andExpect(jsonPath("$.name").value(courseDTO.getName()))
-                .andExpect(jsonPath("$.description").value(courseDTO.getDescription()));
+                .andExpect(jsonPath("$.shortDescription").value(courseDTO.getShortDescription()))
+                .andExpect(jsonPath("$.picture").value(courseDTO.getPicture()));
     }
 
     @Test
     @WithMockUser(roles = "INSTRUCTOR", username = "test@bykowski.dev")
     void shouldUpdateCourseAsOwner() throws Exception {
         UUID courseId = UUID.randomUUID();
-        CreateCourseDTO updateCourseDTO = new CreateCourseDTO("Updated Course", "Updated Description");
-        CourseDTO updatedCourseDTO = new CourseDTO(courseId, updateCourseDTO.getName(), updateCourseDTO.getDescription());
+
+        CreateCourseDTO updateCourseDTO = new CreateCourseDTO("Updated Course", "Updated Description", "Updated Long Description", "https://updated.image.url");
+        CourseDTO updatedCourseDTO = new CourseDTO(courseId, updateCourseDTO.getName(), updateCourseDTO.getShortDescription(), updateCourseDTO.getPicture());
 
         User instructor = User.builder()
                 .uuid(UUID.randomUUID())
@@ -108,14 +110,15 @@ class CourseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.uuid").value(updatedCourseDTO.getUuid().toString()))
                 .andExpect(jsonPath("$.name").value(updatedCourseDTO.getName()))
-                .andExpect(jsonPath("$.description").value(updatedCourseDTO.getDescription()));
+                .andExpect(jsonPath("$.shortDescription").value(updatedCourseDTO.getShortDescription()))
+                .andExpect(jsonPath("$.picture").value(updatedCourseDTO.getPicture()));
     }
 
     @Test
     @WithMockUser(roles = "INSTRUCTOR", username = "test@bykowski.dev")
     void shouldReturnBadRequestWhenCreateCourseWithInvalidData() throws Exception {
         // Empty name and description to trigger validation errors
-        CreateCourseDTO invalidCourseDTO = new CreateCourseDTO("", "");
+        CreateCourseDTO invalidCourseDTO = new CreateCourseDTO("", "", "", "");
 
         User instructor = User.builder()
                 .uuid(UUID.randomUUID())
@@ -133,7 +136,7 @@ class CourseControllerTest {
     @Test
     @WithMockUser(roles = "STUDENT")
     void shouldReturnForbiddenWhenStudentTriesToCreateCourse() throws Exception {
-        CreateCourseDTO createCourseDTO = new CreateCourseDTO("New Course", "Description");
+        CreateCourseDTO createCourseDTO = new CreateCourseDTO("New Course", "Course short description", "Course long description", "https://image.url");
 
         mockMvc.perform(post("/courses")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -145,7 +148,7 @@ class CourseControllerTest {
     @WithMockUser(roles = "INSTRUCTOR", username = "test@bykowski.dev")
     void shouldFailToUpdateCourseIfNotOwner() throws Exception {
         UUID courseId = UUID.randomUUID();
-        CreateCourseDTO updateCourseDTO = new CreateCourseDTO("Updated Course", "Updated Description");
+        CreateCourseDTO updateCourseDTO = new CreateCourseDTO("Updated Course", "Updated Description", "Updated Long Description", "https://updated.image.url");
 
         User instructor = User.builder()
                 .uuid(UUID.randomUUID())
@@ -166,7 +169,7 @@ class CourseControllerTest {
     @WithMockUser(roles = "STUDENT")
     void shouldReturnForbiddenWhenStudentTriesToUpdateCourse() throws Exception {
         UUID courseId = UUID.randomUUID();
-        CreateCourseDTO updateCourseDTO = new CreateCourseDTO("Updated Course", "Updated Description");
+        CreateCourseDTO updateCourseDTO = new CreateCourseDTO("Updated Course", "Updated Description", "Updated Long Description", "https://updated.image.url");
 
         mockMvc.perform(put("/courses/{id}", courseId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -178,7 +181,7 @@ class CourseControllerTest {
     @WithMockUser(roles = "INSTRUCTOR", username = "test@bykowski.dev")
     void shouldReturnNotFoundWhenUpdatingNonExistentCourse() throws Exception {
         UUID nonExistentCourseId = UUID.randomUUID();
-        CreateCourseDTO updateCourseDTO = new CreateCourseDTO("Updated Course", "Updated Description");
+        CreateCourseDTO updateCourseDTO = new CreateCourseDTO("Updated Course", "Updated Description", "Updated Long Description", "https://updated.image.url");
 
         User instructor = User.builder()
                 .uuid(UUID.randomUUID())
