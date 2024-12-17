@@ -2,8 +2,10 @@ package dev.bykowski.academa.services;
 
 import dev.bykowski.academa.dtos.User.RegisterUserDTO;
 import dev.bykowski.academa.exceptions.NotFoundException;
+import dev.bykowski.academa.models.Student;
 import dev.bykowski.academa.models.User.Role;
 import dev.bykowski.academa.models.User.User;
+import dev.bykowski.academa.repositories.StudentRepository;
 import dev.bykowski.academa.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,6 +24,8 @@ import java.util.UUID;
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
 
+    private final StudentRepository studentRepository;
+
     private final PasswordEncoder passwordEncoder;
 
     public void register(RegisterUserDTO userDTO) {
@@ -34,7 +38,7 @@ public class UserService implements UserDetailsService {
         String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
         userDTO.setPassword(encodedPassword);
 
-        User user = User.builder()
+        Student user = Student.builder()
                 .email(userDTO.getEmail())
                 .password(userDTO.getPassword())
                 .givenName(userDTO.getGivenName())
@@ -45,7 +49,7 @@ public class UserService implements UserDetailsService {
                 .build();
 
         if (!alreadyExists)
-            userRepository.save(user);
+            studentRepository.save(user);
     }
 
     public Boolean isAdmin(UUID userUuid) {

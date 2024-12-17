@@ -9,6 +9,7 @@ import dev.bykowski.academa.models.Student;
 import dev.bykowski.academa.models.User.User;
 import dev.bykowski.academa.repositories.CourseRepository;
 import dev.bykowski.academa.repositories.StudentRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -76,6 +77,7 @@ public class CourseService {
         return mapToDTO(courseRepository.save(course));
     }
 
+    @Transactional
     public List<CourseDTO> assignCourse(UUID studentUuid, UUID courseUuid) {
         Student student = studentRepository.findById(studentUuid).orElseThrow(() -> new NotFoundException(
                 String.format("Student with uuid %s not found", studentUuid)
@@ -84,17 +86,18 @@ public class CourseService {
                 String.format("Course with uuid %s not found", courseUuid)
         ));
 
-        student.getCourses().add(course);
+        student.getEnrolledCourses().add(course);
 
         course.getStudents().add(student);
 
         studentRepository.save(student);
 
-        return student.getCourses().stream()
+        return student.getEnrolledCourses().stream()
                 .map(CourseDTO::new)
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void unassignCourse(UUID studentUuid, UUID courseUuid) {
         Student student = studentRepository.findById(studentUuid).orElseThrow(() -> new NotFoundException(
                 String.format("Student with uuid %s not found", studentUuid)
@@ -103,19 +106,20 @@ public class CourseService {
                 String.format("Course with uuid %s not found", courseUuid)
         ));
 
-        student.getCourses().remove(course);
+        student.getEnrolledCourses().remove(course);
 
         course.getStudents().remove(student);
 
         studentRepository.save(student);
     }
 
+    @Transactional
     public List<CourseDTO> getStudentCourses(UUID studentUuid) {
         Student student = studentRepository.findById(studentUuid)
                 .orElseThrow(() -> new NotFoundException(
                         String.format("Student with uuid %s not found", studentUuid)
                 ));
-        return student.getCourses().stream()
+        return student.getEnrolledCourses().stream()
                 .map(CourseDTO::new)
                 .collect(Collectors.toList());
     }
@@ -140,5 +144,11 @@ public class CourseService {
 
     public CourseDTO mapToDTO(Course course) {
         return new CourseDTO(course);
+    }
+
+    public List<CourseDTO> getInstructorCourses(UUID uuid) {
+        return courseRepository.findByInstructor_Uuid(uuid).stream()
+                .map(CourseDTO::new)
+                .collect(Collectors.toList());
     }
 }

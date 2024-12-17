@@ -45,7 +45,7 @@ public class StudentService {
                 .picture(studentDTO.getPicture())
                 .locale(studentDTO.getLocale())
                 .role(Role.valueOf(studentDTO.getRole()))
-                .courses(studentCourses)
+                .enrolledCourses(studentCourses)
                 .build();
 
         return mapToDTO(studentRepository.save(student));
