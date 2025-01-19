@@ -4,10 +4,10 @@
  * This file is part of the Academa project.
  * You may not use this file except in compliance with the project license.
  *
- * Created on: 2024-10-16
+ * Created on: 2024-10-23
  * File: StudentService.java
  *
- * Last modified: 2024-10-16 23:43:01
+ * Last modified: 2024-10-23 17:18:31
  */
 
 package dev.bykowski.academa.services;
@@ -36,6 +36,13 @@ public class StudentService {
                     String.format("Student with email %s already exists", studentDTO.getEmail())
             );
         }
+
+        if (studentRepository.existsByUserName(studentDTO.getUserName())) {
+            throw new UserAlreadyExistsException(
+                    String.format("Student with username %s already exists", studentDTO.getUserName())
+            );
+        }
+
         Student student = Student.builder()
                 .email(studentDTO.getEmail())
                 .givenName(studentDTO.getGivenName())

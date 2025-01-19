@@ -4,10 +4,10 @@
  * This file is part of the Academa project.
  * You may not use this file except in compliance with the project license.
  *
- * Created on: 2024-10-16
+ * Created on: 2024-10-23
  * File: CustomOAuth2UserService.java
  *
- * Last modified: 2024-10-16 21:59:37
+ * Last modified: 2024-10-23 17:32:39
  */
 
 package dev.bykowski.academa.services;
@@ -52,7 +52,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private OAuth2User processOAuth2User(OAuth2User oauthUser) {
         String email = oauthUser.getAttribute("email");
         User user = userRepository.findByEmail(email).orElse(null);
-        System.out.println(oauthUser);
 
         if (user == null) {
             log.debug("User not found with email: {}. Creating a new user.", email);
@@ -65,8 +64,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .picture(oauthUser.getAttribute("picture"))
                     .locale(oauthUser.getAttribute("locale"))
                     .roles(new HashSet<>(Set.of(Role.STUDENT)))
-                    .studentId("123456")
-                    .studentClass("1A")
+                    .studentClasses(new HashSet<>())
                     .build();
 
             studentRepository.save(newStudent);

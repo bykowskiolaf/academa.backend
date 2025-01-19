@@ -4,17 +4,17 @@
  * This file is part of the Academa project.
  * You may not use this file except in compliance with the project license.
  *
- * Created on: 2024-10-16
+ * Created on: 2024-10-27
  * File: User.java
  *
- * Last modified: 2024-10-16 22:17:52
+ * Last modified: 2024-10-27 22:59:45
  */
 
 package dev.bykowski.academa.models.User;
 
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -36,24 +36,24 @@ public abstract class User {
     @Column(unique = true)
     private UUID uuid = UUID.randomUUID();
 
-    @Nonnull
+    @NotNull(message = "Email cannot be null")
     @Email
     @Column(unique = true)
     private String email;
 
-    @Nonnull
     private String givenName;
 
-    @Nonnull
     private String familyName;
 
     private String picture;
 
     private String locale;
 
+    @NotNull(message = "Password cannot be null")
+    @Column(unique = true)
     private String userName;
 
-    @Nonnull
+    @NotNull(message = "Password cannot be null")
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<Role> roles = new HashSet<>();
 }
