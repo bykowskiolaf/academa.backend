@@ -89,17 +89,11 @@ public class AuthControllerTest {
 
     @Test
     public void testRegisterSuccess() throws Exception {
-        when(userService.register(any(RegisterUserDTO.class))).thenReturn(userDTO);
-
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerUserDTO)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.email").value(TEST_EMAIL))
-                .andExpect(jsonPath("$.givenName").value("Test"))
-                .andExpect(jsonPath("$.familyName").value("User"))
-                .andExpect(jsonPath("$.role").value(Role.STUDENT.getName()));
+                .andExpect(status().isCreated());
 
         ArgumentCaptor<RegisterUserDTO> registerCaptor = ArgumentCaptor.forClass(RegisterUserDTO.class);
         verify(userService).register(registerCaptor.capture());
@@ -108,8 +102,8 @@ public class AuthControllerTest {
 
     @Test
     public void testRegisterEmailAlreadyExists() throws Exception {
-        when(userService.register(any(RegisterUserDTO.class)))
-                .thenThrow(new AlreadyExistsException("User with given email already exists"));
+        doThrow(new AlreadyExistsException("Email already exists"))
+                .when(userService).register(any(RegisterUserDTO.class));
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)

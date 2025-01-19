@@ -38,7 +38,7 @@ public class WebSecurityConfig {
 
     @Value("${redirectUri}")
     private String redirectUri;
-    
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -57,6 +57,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/auth/register").permitAll()
                         .requestMatchers("/auth/login").permitAll()
                         .requestMatchers("/auth/logout").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(

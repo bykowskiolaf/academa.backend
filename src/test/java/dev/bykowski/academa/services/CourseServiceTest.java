@@ -162,7 +162,7 @@ class CourseServiceTest {
 
         Student student = Student.builder()
                 .uuid(studentUuid)
-                .courses(new HashSet<>())
+                .enrolledCourses(new HashSet<>())
                 .build();
 
         Course course = Course.builder()
@@ -203,7 +203,7 @@ class CourseServiceTest {
 
         Student student = Student.builder()
                 .uuid(studentUuid)
-                .courses(new HashSet<>(Collections.singleton(course)))
+                .enrolledCourses(new HashSet<>(Collections.singleton(course)))
                 .build();
 
         course.setStudents(new HashSet<>(Collections.singleton(student)));

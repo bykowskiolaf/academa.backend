@@ -1,7 +1,6 @@
 package dev.bykowski.academa.services;
 
 import dev.bykowski.academa.dtos.User.RegisterUserDTO;
-import dev.bykowski.academa.dtos.User.UserDTO;
 import dev.bykowski.academa.exceptions.NotFoundException;
 import dev.bykowski.academa.models.User.Role;
 import dev.bykowski.academa.models.User.User;
@@ -71,13 +70,6 @@ class UserServiceTest {
         when(passwordEncoder.encode(registerUserDTO.getPassword())).thenReturn(encodedPassword);
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
-        UserDTO registeredUser = userService.register(registerUserDTO);
-
-        assertNotNull(registeredUser);
-        assertEquals(registerUserDTO.getEmail(), registeredUser.getEmail());
-        assertEquals(registerUserDTO.getGivenName(), registeredUser.getGivenName());
-        assertEquals(registerUserDTO.getFamilyName(), registeredUser.getFamilyName());
-
         verify(userRepository, times(1)).findByEmail(registerUserDTO.getEmail());
         verify(passwordEncoder, times(1)).encode(plainPassword);
         verify(userRepository, times(1)).save(any(User.class));
@@ -87,11 +79,13 @@ class UserServiceTest {
     void shouldNotRegisterUserIfEmailExists() {
         RegisterUserDTO registerUserDTO = RegisterUserDTO.builder()
                 .email(email)
+                .password(plainPassword)
                 .build();
 
         when(userRepository.findByEmail(registerUserDTO.getEmail())).thenReturn(Optional.of(new User()));
 
         assertThrows(IllegalArgumentException.class, () -> userService.register(registerUserDTO));
+
 
         verify(userRepository, times(1)).findByEmail(registerUserDTO.getEmail());
         verifyNoInteractions(passwordEncoder);

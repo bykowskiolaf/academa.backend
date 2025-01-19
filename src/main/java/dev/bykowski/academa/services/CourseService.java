@@ -3,6 +3,8 @@ package dev.bykowski.academa.services;
 import dev.bykowski.academa.dtos.Course.CourseDTO;
 import dev.bykowski.academa.dtos.Course.CreateCourseDTO;
 import dev.bykowski.academa.dtos.Course.FullCourseDTO;
+import dev.bykowski.academa.dtos.Student.StudentDTO;
+import dev.bykowski.academa.exceptions.ForbiddenActionException;
 import dev.bykowski.academa.exceptions.NotFoundException;
 import dev.bykowski.academa.models.Course.Course;
 import dev.bykowski.academa.models.Student;
@@ -14,7 +16,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.UUID;
@@ -44,7 +49,7 @@ public class CourseService {
     public FullCourseDTO getByUuid(UUID uuid) {
         return courseRepository.findById(uuid)
                 .map(FullCourseDTO::new)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() -> new NotFoundException("Course not found"));
     }
 
     public Boolean existsByUuid(UUID uuid) {
@@ -150,5 +155,29 @@ public class CourseService {
         return courseRepository.findByInstructor_Uuid(uuid).stream()
                 .map(CourseDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    public List<StudentDTO> getCourseStudents(UUID uuid) {
+        Course course = courseRepository.findById(uuid)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("Course with uuid %s not found", uuid)
+                ));
+
+        return course.getStudents().stream()
+                .map(StudentDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    public void checkAdminOrOwner(@PathVariable UUID uuid) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User instructor = userService.getByEmail(auth.getName());
+
+        if (!existsByUuid(uuid)) {
+            throw new NotFoundException("Course with given uuid does not exist");
+        }
+
+        if (!isOwnerOrAdmin(uuid, instructor.getUuid())) {
+            throw new ForbiddenActionException("You do not have permission to delete this course");
+        }
     }
 }

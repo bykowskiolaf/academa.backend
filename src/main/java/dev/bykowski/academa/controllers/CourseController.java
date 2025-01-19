@@ -3,6 +3,7 @@ package dev.bykowski.academa.controllers;
 import dev.bykowski.academa.dtos.Course.CourseDTO;
 import dev.bykowski.academa.dtos.Course.CreateCourseDTO;
 import dev.bykowski.academa.dtos.Course.FullCourseDTO;
+import dev.bykowski.academa.dtos.Student.StudentDTO;
 import dev.bykowski.academa.exceptions.ForbiddenActionException;
 import dev.bykowski.academa.exceptions.NotFoundException;
 import dev.bykowski.academa.models.User.User;
@@ -78,19 +79,21 @@ public class CourseController {
     @DeleteMapping("/{uuid}")
     @RolesAllowed("INSTRUCTOR")
     public ResponseEntity<Void> deleteCourse(@PathVariable UUID uuid) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User instructor = userService.getByEmail(auth.getName());
-
-        if (!courseService.existsByUuid(uuid)) {
-            throw new NotFoundException("Course with given uuid does not exist");
-        }
-
-        if (!courseService.isOwnerOrAdmin(uuid, instructor.getUuid())) {
-            throw new ForbiddenActionException("You do not have permission to delete this course");
-        }
+        courseService.checkAdminOrOwner(uuid);
 
         courseService.deleteCourse(uuid);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/{uuid}/students")
+    @RolesAllowed("INSTRUCTOR")
+    public ResponseEntity<List<StudentDTO>> getCourseStudents(@PathVariable UUID uuid) {
+        courseService.checkAdminOrOwner(uuid);
+
+        List<StudentDTO> students = courseService.getCourseStudents(uuid);
+
+
+        return new ResponseEntity<>(students, HttpStatus.OK);
     }
 
     @GetMapping("/{studentUuid}/courses")

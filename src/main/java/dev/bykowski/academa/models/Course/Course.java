@@ -35,9 +35,6 @@ public class Course {
 
     private String picture;
 
-//    @NotNull(message = "Course date cannot be null")
-//    private Date date;
-
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.EAGER)

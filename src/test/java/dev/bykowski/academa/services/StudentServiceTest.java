@@ -66,7 +66,7 @@ class StudentServiceTest {
                 .givenName(createStudentDTO.getGivenName())
                 .familyName(createStudentDTO.getFamilyName())
                 .role(Role.STUDENT)
-                .courses(Set.of(course))
+                .enrolledCourses(Set.of(course))
                 .build();
 
         when(studentRepository.save(any(Student.class))).thenReturn(student);
