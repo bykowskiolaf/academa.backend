@@ -5,24 +5,25 @@
  * You may not use this file except in compliance with the project license.
  *
  * Created on: 2024-10-30
- * File: CreateStudentDTO.java
+ * File: CreateCourseDTO.java
  *
- * Last modified: 2024-10-30 16:47:59
+ * Last modified: 2024-10-30 17:07:25
  */
 
-package dev.bykowski.academa.dtos.Student;
+package dev.bykowski.academa.dtos.Course;
 
-import dev.bykowski.academa.dtos.User.CreateUserDTO;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class CreateStudentDTO extends CreateUserDTO {
+public class CreateCourseDTO {
 
-    private String studentCourses;
+    @NotNull(message = "Course name cannot be null")
+    private String name;
+
+    private String description;
 }
