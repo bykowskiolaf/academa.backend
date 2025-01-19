@@ -26,5 +26,5 @@ public class Student extends User {
             name = "student_course",
             joinColumns = @JoinColumn(name = "student_uuid"),
             inverseJoinColumns = @JoinColumn(name = "course_uuid"))
-    private Set<Course> courses;
+    private Set<Course> enrolledCourses;
 }

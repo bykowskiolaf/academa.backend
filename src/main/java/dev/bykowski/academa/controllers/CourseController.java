@@ -100,6 +100,26 @@ public class CourseController {
         return new ResponseEntity<>(studentCourses, HttpStatus.OK);
     }
 
+    @GetMapping("/enrolled")
+    public ResponseEntity<List<CourseDTO>> getEnrolledCourses() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User student = userService.getByEmail(auth.getName());
+
+        List<CourseDTO> studentCourses = courseService.getStudentCourses(student.getUuid());
+        return new ResponseEntity<>(studentCourses, HttpStatus.OK);
+    }
+
+    @GetMapping("/owned")
+    @RolesAllowed("INSTRUCTOR")
+    public ResponseEntity<List<CourseDTO>> getOwnedCourses() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User instructor = userService.getByEmail(auth.getName());
+
+        List<CourseDTO> instructorCourses = courseService.getInstructorCourses(instructor.getUuid());
+        return new ResponseEntity<>(instructorCourses, HttpStatus.OK);
+    }
+
+
     @PostMapping("/{studentUuid}/courses/{courseUuid}")
     @RolesAllowed({"ADMIN", "INSTRUCTOR"})
     public ResponseEntity<List<CourseDTO>> assignCourse(@PathVariable UUID studentUuid, @PathVariable UUID courseUuid) {
@@ -111,6 +131,23 @@ public class CourseController {
     @RolesAllowed({"ADMIN", "INSTRUCTOR"})
     public ResponseEntity<Void> unAssignStudent(@PathVariable UUID studentUuid, @PathVariable UUID courseUuid) {
         courseService.unassignCourse(studentUuid, courseUuid);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping("/{courseUuid}/sign-up")
+    public ResponseEntity<List<CourseDTO>> signUpToCourse(@PathVariable UUID courseUuid) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User student = userService.getByEmail(auth.getName());
+
+        return new ResponseEntity<>(courseService.assignCourse(student.getUuid(), courseUuid), HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{courseUuid}/drop-out")
+    public ResponseEntity<Void> dropOutOfCourse(@PathVariable UUID courseUuid) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User student = userService.getByEmail(auth.getName());
+
+        courseService.unassignCourse(student.getUuid(), courseUuid);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

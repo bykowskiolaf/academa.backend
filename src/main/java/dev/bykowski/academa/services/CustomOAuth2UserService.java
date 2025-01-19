@@ -1,15 +1,3 @@
-/*
- * © 2024 bykowski. All rights reserved.
- *
- * This file is part of the Academa project.
- * You may not use this file except in compliance with the project license.
- *
- * Created on: 2024-11-09
- * File: CustomOAuth2UserService.java
- *
- * Last modified: 2024-11-09 14:45:44
- */
-
 package dev.bykowski.academa.services;
 
 import dev.bykowski.academa.models.Student;
@@ -63,7 +51,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .picture(oauthUser.getAttribute("picture"))
                     .locale(oauthUser.getAttribute("locale"))
                     .role(Role.STUDENT)
-                    .courses(new HashSet<>())
+                    .enrolledCourses(new HashSet<>())
                     .build();
 
             studentRepository.save(newStudent);

@@ -30,11 +30,13 @@ public class Course {
     @Size(max = 64, message = "Course short description cannot be longer than 255 characters")
     private String shortDescription;
 
-    @Size(max = 512, message = "Course long description cannot be longer than 512 characters")
+    @Size(max = 2048, message = "Course long description cannot be longer than 512 characters")
     private String longDescription;
 
     private String picture;
 
+//    @NotNull(message = "Course date cannot be null")
+//    private Date date;
 
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
@@ -43,7 +45,7 @@ public class Course {
 
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    @ManyToMany(mappedBy = "courses", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "enrolledCourses", fetch = FetchType.EAGER)
     private Set<Student> students;
 
 }

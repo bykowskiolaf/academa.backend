@@ -214,7 +214,7 @@ class CourseServiceTest {
         courseService.unassignCourse(studentUuid, courseUuid);
 
         verify(studentRepository, times(1)).save(student);
-        assertTrue(student.getCourses().isEmpty());
+        assertTrue(student.getEnrolledCourses().isEmpty());
         assertTrue(course.getStudents().isEmpty());
     }
 }

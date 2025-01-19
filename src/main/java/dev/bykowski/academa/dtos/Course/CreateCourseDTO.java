@@ -20,7 +20,7 @@ public class CreateCourseDTO {
     @Size(max = 64, message = "Course short description cannot be longer than 255 characters")
     private String shortDescription;
 
-    @Size(max = 512, message = "Course long description cannot be longer than 512 characters")
+    @Size(max = 2048, message = "Course long description cannot be longer than 512 characters")
     private String longDescription;
 
     private String picture;
