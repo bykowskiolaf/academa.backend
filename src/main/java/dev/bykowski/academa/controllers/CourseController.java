@@ -2,6 +2,7 @@ package dev.bykowski.academa.controllers;
 
 import dev.bykowski.academa.dtos.Course.CourseDTO;
 import dev.bykowski.academa.dtos.Course.CreateCourseDTO;
+import dev.bykowski.academa.dtos.Course.FullCourseDTO;
 import dev.bykowski.academa.exceptions.ForbiddenActionException;
 import dev.bykowski.academa.exceptions.NotFoundException;
 import dev.bykowski.academa.models.User.User;
@@ -10,6 +11,7 @@ import dev.bykowski.academa.services.UserService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -28,8 +30,11 @@ public class CourseController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<CourseDTO>> getAllCourses() {
-        List<CourseDTO> courses = courseService.getAll();
+    public ResponseEntity<Page<CourseDTO>> getCourses(
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        Page<CourseDTO> courses = courseService.getPaginatedCourses(pageNumber, pageSize);
         return new ResponseEntity<>(courses, HttpStatus.OK);
     }
 
@@ -47,8 +52,8 @@ public class CourseController {
     }
 
     @GetMapping("/{uuid}")
-    public ResponseEntity<CourseDTO> getCourseByUuid(@PathVariable UUID uuid) {
-        CourseDTO course = courseService.getByUuid(uuid);
+    public ResponseEntity<FullCourseDTO> getCourseByUuid(@PathVariable UUID uuid) {
+        FullCourseDTO course = courseService.getByUuid(uuid);
         return new ResponseEntity<>(course, HttpStatus.OK);
     }
 

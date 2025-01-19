@@ -43,7 +43,8 @@ class CourseServiceTest {
         Course course = Course.builder()
                 .uuid(UUID.randomUUID())
                 .name("Test Course")
-                .description("Test Description")
+                .shortDescription("Test short description")
+                .longDescription("Test long description")
                 .build();
 
         when(courseRepository.findAll()).thenReturn(Collections.singletonList(course));
@@ -62,7 +63,8 @@ class CourseServiceTest {
         Course course = Course.builder()
                 .uuid(courseUuid)
                 .name("Test Course")
-                .description("Test Description")
+                .shortDescription("Test short description")
+                .longDescription("Test long description")
                 .build();
 
         when(courseRepository.findById(courseUuid)).thenReturn(Optional.of(course));
@@ -87,7 +89,8 @@ class CourseServiceTest {
         UUID instructorUuid = UUID.randomUUID();
         CreateCourseDTO createCourseDTO = CreateCourseDTO.builder()
                 .name("New Course")
-                .description("New Description")
+                .shortDescription("New Description")
+                .longDescription("New Long Description")
                 .build();
 
         User instructor = User.builder()
@@ -97,7 +100,8 @@ class CourseServiceTest {
         Course course = Course.builder()
                 .uuid(UUID.randomUUID())
                 .name("New Course")
-                .description("New Description")
+                .shortDescription("New Description")
+                .longDescription("New Long Description")
                 .instructor(instructor)
                 .build();
 
@@ -117,13 +121,14 @@ class CourseServiceTest {
         UUID courseUuid = UUID.randomUUID();
         CreateCourseDTO createCourseDTO = CreateCourseDTO.builder()
                 .name("Updated Course")
-                .description("Updated Description")
+                .shortDescription("Updated Description")
+                .longDescription("Updated Long Description")
                 .build();
 
         Course course = Course.builder()
                 .uuid(courseUuid)
                 .name("Original Course")
-                .description("Original Description")
+                .shortDescription("Original Description")
                 .build();
 
         when(courseRepository.findById(courseUuid)).thenReturn(Optional.of(course));
@@ -133,7 +138,8 @@ class CourseServiceTest {
 
         assertNotNull(updatedCourseDTO);
         assertEquals("Updated Course", updatedCourseDTO.getName());
-        assertEquals("Updated Description", updatedCourseDTO.getDescription());
+        assertEquals("Updated Description", updatedCourseDTO.getShortDescription());
+
         verify(courseRepository, times(1)).findById(courseUuid);
         verify(courseRepository, times(1)).save(course);
     }
