@@ -13,8 +13,7 @@ services:
     networks:
       - backend-network
 
-  spring:
-    container_name: spring
+  backend:
     build:
       dockerfile: Dockerfile
     image: blog-image:latest
