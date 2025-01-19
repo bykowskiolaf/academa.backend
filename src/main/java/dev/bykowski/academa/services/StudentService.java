@@ -4,10 +4,10 @@
  * This file is part of the Academa project.
  * You may not use this file except in compliance with the project license.
  *
- * Created on: 2024-11-06
+ * Created on: 2024-11-09
  * File: StudentService.java
  *
- * Last modified: 2024-11-06 16:43:51
+ * Last modified: 2024-11-09 14:48:07
  */
 
 package dev.bykowski.academa.services;
@@ -19,12 +19,14 @@ import dev.bykowski.academa.exceptions.AlreadyExistsException;
 import dev.bykowski.academa.exceptions.NotFoundException;
 import dev.bykowski.academa.models.Course.Course;
 import dev.bykowski.academa.models.Student;
+import dev.bykowski.academa.models.User.Role;
 import dev.bykowski.academa.repositories.CourseRepository;
 import dev.bykowski.academa.repositories.StudentRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -42,20 +44,23 @@ public class StudentService {
             );
         }
 
-        if (studentRepository.existsByUserName(studentDTO.getUserName())) {
-            throw new AlreadyExistsException(
-                    String.format("Student with username %s already exists", studentDTO.getUserName())
-            );
-        }
+        Set<Course> studentCourses = studentDTO.getStudentCourses().stream()
+                .map(courseUuid -> courseRepository.findById(courseUuid).orElseThrow(() -> new NotFoundException(
+                        String.format("Course with uuid %s not found", courseUuid)
+                )))
+                .collect(Collectors.toSet());
 
         Student student = Student.builder()
                 .email(studentDTO.getEmail())
+                .password(studentDTO.getPassword())
                 .givenName(studentDTO.getGivenName())
                 .familyName(studentDTO.getFamilyName())
                 .picture(studentDTO.getPicture())
                 .locale(studentDTO.getLocale())
-                .roles(studentDTO.getRoles())
+                .role(Role.valueOf(studentDTO.getRole()))
+                .courses(studentCourses)
                 .build();
+
         return mapToDTO(studentRepository.save(student));
     }
 
@@ -69,7 +74,7 @@ public class StudentService {
         student.setFamilyName(studentDTO.getFamilyName());
         student.setPicture(studentDTO.getPicture());
         student.setLocale(studentDTO.getLocale());
-        student.setRoles(studentDTO.getRoles());
+        student.setRole(Role.valueOf(studentDTO.getRole()));
 
         return mapToDTO(studentRepository.save(student));
     }
@@ -86,13 +91,13 @@ public class StudentService {
                 String.format("Course with uuid %s not found", courseUuid)
         ));
 
-        student.getStudentCourses().add(course);
+        student.getCourses().add(course);
 
         course.getStudents().add(student);
 
         studentRepository.save(student);
 
-        return student.getStudentCourses().stream()
+        return student.getCourses().stream()
                 .map(CourseDTO::new)
                 .collect(Collectors.toList());
     }
@@ -105,7 +110,7 @@ public class StudentService {
                 String.format("Course with uuid %s not found", courseUuid)
         ));
 
-        student.getStudentCourses().remove(course);
+        student.getCourses().remove(course);
 
         course.getStudents().remove(student);
 
@@ -131,7 +136,7 @@ public class StudentService {
                 .orElseThrow(() -> new NotFoundException(
                         String.format("Student with uuid %s not found", studentUuid)
                 ));
-        return student.getStudentCourses().stream()
+        return student.getCourses().stream()
                 .map(CourseDTO::new)
                 .collect(Collectors.toList());
     }

@@ -1,16 +1,5 @@
-/*
- * © 2024 bykowski. All rights reserved.
- *
- * This file is part of the Academa project.
- * You may not use this file except in compliance with the project license.
- *
- * Created on: 2024-11-06
- * File: WebSecurityConfig.java
- *
- * Last modified: 2024-11-06 17:01:32
- */
-
 package dev.bykowski.academa.config;
+
 
 import dev.bykowski.academa.services.CustomOAuth2UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,18 +8,23 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
+
 
 @Configuration
 @EnableWebSecurity
@@ -39,6 +33,7 @@ public class WebSecurityConfig {
 
     @Autowired
     private CustomOAuth2UserService customOAuth2UserService;
+
 
     @Value("${redirectUri}")
     private String redirectUri;
@@ -54,13 +49,14 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/login/**", "/oauth2/**").permitAll()
+                        .requestMatchers("/auth/register").permitAll()
+                        .requestMatchers("/auth/login").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(
                         sessionManagement -> sessionManagement
                                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
-                .httpBasic(Customizer.withDefaults())
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler((request, response, authentication) -> response.sendRedirect(redirectUri))
                         .userInfoEndpoint(userInfo -> userInfo
@@ -69,6 +65,7 @@ public class WebSecurityConfig {
                 )
                 .build();
     }
+
 
     @Bean
     public RoleHierarchy roleHierarchy() {
@@ -86,5 +83,15 @@ public class WebSecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cors);
         return source;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

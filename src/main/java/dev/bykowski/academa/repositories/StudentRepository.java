@@ -4,10 +4,10 @@
  * This file is part of the Academa project.
  * You may not use this file except in compliance with the project license.
  *
- * Created on: 2024-10-27
+ * Created on: 2024-11-09
  * File: StudentRepository.java
  *
- * Last modified: 2024-10-27 23:05:42
+ * Last modified: 2024-11-09 14:48:52
  */
 
 package dev.bykowski.academa.repositories;
@@ -21,7 +21,5 @@ import java.util.UUID;
 @Repository
 public interface StudentRepository extends JpaRepository<Student, UUID> {
     boolean existsByEmail(String email);
-
-    boolean existsByUserName(String userName);
 }
 

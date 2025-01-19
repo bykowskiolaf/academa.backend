@@ -4,10 +4,10 @@
  * This file is part of the Academa project.
  * You may not use this file except in compliance with the project license.
  *
- * Created on: 2024-10-16
+ * Created on: 2024-11-09
  * File: UserRepository.java
  *
- * Last modified: 2024-10-16 22:03:09
+ * Last modified: 2024-11-09 14:48:36
  */
 
 package dev.bykowski.academa.repositories;
@@ -23,4 +23,3 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
 }
-

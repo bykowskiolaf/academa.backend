@@ -5,9 +5,9 @@
  * You may not use this file except in compliance with the project license.
  *
  * Created on: 2024-11-09
- * File: CreateUserDTO.java
+ * File: RegisterUserDTO.java
  *
- * Last modified: 2024-11-09 14:47:29
+ * Last modified: 2024-11-09 14:52:45
  */
 
 package dev.bykowski.academa.dtos.User;
@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateUserDTO {
+public class RegisterUserDTO {
 
     @NotNull(message = "Email is required")
     @Email(message = "Email is invalid")
@@ -42,7 +42,4 @@ public class CreateUserDTO {
     private String picture;
 
     private String locale;
-
-    @NotNull(message = "Role is required")
-    private String role;
 }

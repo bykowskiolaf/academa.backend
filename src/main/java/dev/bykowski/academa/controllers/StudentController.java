@@ -4,10 +4,10 @@
  * This file is part of the Academa project.
  * You may not use this file except in compliance with the project license.
  *
- * Created on: 2024-11-06
+ * Created on: 2024-11-09
  * File: StudentController.java
  *
- * Last modified: 2024-11-06 17:07:22
+ * Last modified: 2024-11-09 14:19:25
  */
 
 package dev.bykowski.academa.controllers;
@@ -36,6 +36,7 @@ public class StudentController {
     @PostMapping
     @RolesAllowed("ADMIN")
     public ResponseEntity<StudentDTO> createStudent(@Valid @RequestBody CreateStudentDTO studentDTO) {
+        System.out.println(studentDTO);
         StudentDTO savedStudent = studentService.create(studentDTO);
         return new ResponseEntity<>(savedStudent, HttpStatus.CREATED);
     }

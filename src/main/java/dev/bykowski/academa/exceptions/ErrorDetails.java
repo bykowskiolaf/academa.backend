@@ -4,10 +4,10 @@
  * This file is part of the Academa project.
  * You may not use this file except in compliance with the project license.
  *
- * Created on: 2024-10-23
+ * Created on: 2024-11-09
  * File: ErrorDetails.java
  *
- * Last modified: 2024-10-23 17:12:55
+ * Last modified: 2024-11-09 15:28:38
  */
 
 package dev.bykowski.academa.exceptions;

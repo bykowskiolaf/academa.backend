@@ -1,15 +1,3 @@
-/*
- * © 2024 bykowski. All rights reserved.
- *
- * This file is part of the Academa project.
- * You may not use this file except in compliance with the project license.
- *
- * Created on: 2024-11-06
- * File: User.java
- *
- * Last modified: 2024-11-06 17:27:08
- */
-
 package dev.bykowski.academa.models.User;
 
 import jakarta.persistence.*;
@@ -18,8 +6,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 
@@ -29,7 +20,7 @@ import java.util.UUID;
 @Data
 @SuperBuilder
 @NoArgsConstructor
-public abstract class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -41,6 +32,8 @@ public abstract class User {
     @Column(unique = true)
     private String email;
 
+    private String password;
+
     private String givenName;
 
     private String familyName;
@@ -49,12 +42,25 @@ public abstract class User {
 
     private String locale;
 
+    private Boolean locked = false;
 
-    @NotNull(message = "Username cannot be null")
-    @Column(unique = true)
-    private String userName;
+    private Boolean enabled = false;
 
-    @NotNull(message = "Roles cannot be null")
-    @ElementCollection(fetch = FetchType.EAGER)
-    private Set<Role> roles = new HashSet<>();
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @Override
+    public Collection<GrantedAuthority> getAuthorities() {
+        return Set.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
 }
