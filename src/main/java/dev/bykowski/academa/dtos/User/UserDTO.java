@@ -1,15 +1,3 @@
-/*
- * © 2024 bykowski. All rights reserved.
- *
- * This file is part of the Academa project.
- * You may not use this file except in compliance with the project license.
- *
- * Created on: 2024-11-09
- * File: UserDTO.java
- *
- * Last modified: 2024-11-09 14:46:04
- */
-
 package dev.bykowski.academa.dtos.User;
 
 import dev.bykowski.academa.models.User.User;
@@ -39,15 +27,13 @@ public class UserDTO {
 
     private String role;
 
-    public static UserDTO from(User user) {
-        return UserDTO.builder()
-                .uuid(user.getUuid())
-                .email(user.getEmail())
-                .givenName(user.getGivenName())
-                .familyName(user.getFamilyName())
-                .picture(user.getPicture())
-                .locale(user.getLocale())
-                .role(user.getRole().getName())
-                .build();
+    public UserDTO(User user) {
+        this.uuid = user.getUuid();
+        this.email = user.getEmail();
+        this.givenName = user.getGivenName();
+        this.familyName = user.getFamilyName();
+        this.picture = user.getPicture();
+        this.locale = user.getLocale();
+        this.role = user.getRole().getName();
     }
 }

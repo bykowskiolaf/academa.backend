@@ -1,18 +1,20 @@
 package dev.bykowski.academa.services;
 
 import dev.bykowski.academa.dtos.User.RegisterUserDTO;
-import dev.bykowski.academa.dtos.User.UserDTO;
 import dev.bykowski.academa.exceptions.NotFoundException;
 import dev.bykowski.academa.models.User.Role;
 import dev.bykowski.academa.models.User.User;
 import dev.bykowski.academa.repositories.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -22,9 +24,11 @@ public class UserService implements UserDetailsService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public UserDTO register(RegisterUserDTO userDTO) {
-        if (userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("User with given email already exists");
+    public void register(RegisterUserDTO userDTO) {
+        boolean alreadyExists = userRepository.findByEmail(userDTO.getEmail()).isPresent();
+
+        if (!userDTO.getPassword().equals(userDTO.getConfirmPassword())) {
+            throw new IllegalArgumentException("Passwords do not match");
         }
 
         String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
@@ -40,7 +44,8 @@ public class UserService implements UserDetailsService {
                 .role(Role.STUDENT)
                 .build();
 
-        return UserDTO.from(userRepository.save(user));
+        if (!alreadyExists)
+            userRepository.save(user);
     }
 
     public Boolean isAdmin(UUID userUuid) {
@@ -61,7 +66,14 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User with given username not found"));
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("User not found with username or email: " + username));
+
+        Set<GrantedAuthority> authorities = new HashSet<>(user.getAuthorities());
+
+        return new org.springframework.security.core.userdetails.User(user.getEmail(),
+                user.getPassword(),
+                authorities);
     }
 }
