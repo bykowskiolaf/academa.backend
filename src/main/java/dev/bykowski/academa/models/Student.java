@@ -1,5 +1,6 @@
 package dev.bykowski.academa.models;
 
+import dev.bykowski.academa.models.User.User;
 import jakarta.persistence.Entity;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
