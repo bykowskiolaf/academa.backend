@@ -1,15 +1,3 @@
-/*
- * © 2024 bykowski. All rights reserved.
- *
- * This file is part of the Academa project.
- * You may not use this file except in compliance with the project license.
- *
- * Created on: 2024-11-09
- * File: AuthController.java
- *
- * Last modified: 2024-11-09 15:23:23
- */
-
 package dev.bykowski.academa.controllers;
 
 import dev.bykowski.academa.dtos.User.LoginDTO;
@@ -48,16 +36,17 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginDTO loginDTO, HttpServletRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword())
         );
 
-        // Set the authentication in the security context
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         UserDTO userDTO = UserDTO.from(userService.getUserByEmail(loginDTO.getEmail()));
 
+        request.getSession(true);
+        
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
