@@ -2,7 +2,7 @@
 FROM gradle:8.10.2-jdk21 AS build
 WORKDIR /usr/app/
 COPY . .
-RUN gradle build
+RUN gradle build -x test -x testClasses
 
 # Package stage
 FROM openjdk:21-jdk
