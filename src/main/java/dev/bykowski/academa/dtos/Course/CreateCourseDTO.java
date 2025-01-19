@@ -1,28 +1,18 @@
-/*
- * © 2024 bykowski. All rights reserved.
- *
- * This file is part of the Academa project.
- * You may not use this file except in compliance with the project license.
- *
- * Created on: 2024-10-30
- * File: CreateCourseDTO.java
- *
- * Last modified: 2024-10-30 17:07:25
- */
-
 package dev.bykowski.academa.dtos.Course;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateCourseDTO {
 
-    @NotNull(message = "Course name cannot be null")
+    @NotBlank(message = "Course name cannot be blank")
     private String name;
 
     private String description;

@@ -47,6 +47,7 @@ public class User implements UserDetails {
     private Boolean enabled = false;
 
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "Role cannot be null")
     private Role role;
 
     @Override

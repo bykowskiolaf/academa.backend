@@ -1,25 +1,19 @@
-/*
- * © 2024 bykowski. All rights reserved.
- *
- * This file is part of the Academa project.
- * You may not use this file except in compliance with the project license.
- *
- * Created on: 2024-11-06
- * File: CourseController.java
- *
- * Last modified: 2024-11-06 16:48:52
- */
-
 package dev.bykowski.academa.controllers;
 
 import dev.bykowski.academa.dtos.Course.CourseDTO;
 import dev.bykowski.academa.dtos.Course.CreateCourseDTO;
+import dev.bykowski.academa.exceptions.ForbiddenActionException;
+import dev.bykowski.academa.exceptions.NotFoundException;
+import dev.bykowski.academa.models.User.User;
 import dev.bykowski.academa.services.CourseService;
+import dev.bykowski.academa.services.UserService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,37 +25,87 @@ import java.util.UUID;
 public class CourseController {
     private final CourseService courseService;
 
+    private final UserService userService;
+
     @GetMapping
     public ResponseEntity<List<CourseDTO>> getAllCourses() {
-
         List<CourseDTO> courses = courseService.getAll();
         return new ResponseEntity<>(courses, HttpStatus.OK);
     }
 
     @PostMapping
-    @RolesAllowed("ADMIN")
-    public ResponseEntity<CourseDTO> createCourse(@Valid @RequestBody CreateCourseDTO course) {
-        CourseDTO savedCourse = courseService.createCourse(course);
+    @RolesAllowed("INSTRUCTOR")
+    public ResponseEntity<CourseDTO> createCourse(
+            @Valid @RequestBody CreateCourseDTO course
+    ) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        User instructor = userService.getByEmail(auth.getName());
+
+        CourseDTO savedCourse = courseService.createCourse(course, instructor.getUuid());
         return new ResponseEntity<>(savedCourse, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<CourseDTO> getCourseById(@PathVariable UUID id) {
-        CourseDTO course = courseService.getById(id);
+    @GetMapping("/{uuid}")
+    public ResponseEntity<CourseDTO> getCourseByUuid(@PathVariable UUID uuid) {
+        CourseDTO course = courseService.getByUuid(uuid);
         return new ResponseEntity<>(course, HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
-    @RolesAllowed("ADMIN")
-    public ResponseEntity<CourseDTO> updateCourse(@PathVariable UUID id, @Valid @RequestBody CreateCourseDTO course) {
-        CourseDTO updatedCourse = courseService.updateCourse(id, course);
+    @PutMapping("/{uuid}")
+    @RolesAllowed("INSTRUCTOR")
+    public ResponseEntity<CourseDTO> updateCourse(@PathVariable UUID uuid, @Valid @RequestBody CreateCourseDTO course) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User instructor = userService.getByEmail(auth.getName());
+
+        if (!courseService.existsByUuid(uuid)) {
+            throw new NotFoundException("Course with given uuid does not exist");
+        }
+
+        if (!courseService.isOwnerOrAdmin(uuid, instructor.getUuid())) {
+            throw new ForbiddenActionException("You do not have permission to edit this course");
+        }
+
+        CourseDTO updatedCourse = courseService.updateCourse(uuid, course);
         return new ResponseEntity<>(updatedCourse, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
-    @RolesAllowed("ADMIN")
-    public ResponseEntity<Void> deleteCourse(@PathVariable UUID id) {
-        courseService.deleteCourse(id);
+    @DeleteMapping("/{uuid}")
+    @RolesAllowed("INSTRUCTOR")
+    public ResponseEntity<Void> deleteCourse(@PathVariable UUID uuid) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User instructor = userService.getByEmail(auth.getName());
+
+        if (!courseService.existsByUuid(uuid)) {
+            throw new NotFoundException("Course with given uuid does not exist");
+        }
+
+        if (!courseService.isOwnerOrAdmin(uuid, instructor.getUuid())) {
+            throw new ForbiddenActionException("You do not have permission to delete this course");
+        }
+
+        courseService.deleteCourse(uuid);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/{studentUuid}/courses")
+    @RolesAllowed("INSTRUCTOR")
+    public ResponseEntity<List<CourseDTO>> getStudentCourses(@PathVariable UUID studentUuid) {
+        List<CourseDTO> studentCourses = courseService.getStudentCourses(studentUuid);
+        return new ResponseEntity<>(studentCourses, HttpStatus.OK);
+    }
+
+    @PostMapping("/{studentUuid}/courses/{courseUuid}")
+    @RolesAllowed({"ADMIN", "INSTRUCTOR"})
+    public ResponseEntity<List<CourseDTO>> assignCourse(@PathVariable UUID studentUuid, @PathVariable UUID courseUuid) {
+        List<CourseDTO> studentCourses = courseService.assignCourse(studentUuid, courseUuid);
+        return new ResponseEntity<>(studentCourses, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{studentUuid}/courses/{courseUuid}")
+    @RolesAllowed({"ADMIN", "INSTRUCTOR"})
+    public ResponseEntity<Void> unAssignStudent(@PathVariable UUID studentUuid, @PathVariable UUID courseUuid) {
+        courseService.unassignCourse(studentUuid, courseUuid);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

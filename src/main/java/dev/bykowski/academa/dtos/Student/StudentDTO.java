@@ -5,8 +5,10 @@ import dev.bykowski.academa.models.Student;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
 
 @Data
+@SuperBuilder
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class StudentDTO extends UserDTO {

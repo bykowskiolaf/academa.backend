@@ -51,6 +51,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/login/**", "/oauth2/**").permitAll()
                         .requestMatchers("/auth/register").permitAll()
                         .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/auth/logout").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(

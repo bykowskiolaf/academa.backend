@@ -1,18 +1,5 @@
-/*
- * © 2024 bykowski. All rights reserved.
- *
- * This file is part of the Academa project.
- * You may not use this file except in compliance with the project license.
- *
- * Created on: 2024-11-09
- * File: StudentService.java
- *
- * Last modified: 2024-11-09 14:48:07
- */
-
 package dev.bykowski.academa.services;
 
-import dev.bykowski.academa.dtos.Course.CourseDTO;
 import dev.bykowski.academa.dtos.Student.CreateStudentDTO;
 import dev.bykowski.academa.dtos.Student.StudentDTO;
 import dev.bykowski.academa.exceptions.AlreadyExistsException;
@@ -83,43 +70,8 @@ public class StudentService {
         studentRepository.deleteById(uuid);
     }
 
-    public List<CourseDTO> assignCourse(UUID studentUuid, UUID courseUuid) {
-        Student student = studentRepository.findById(studentUuid).orElseThrow(() -> new NotFoundException(
-                String.format("Student with uuid %s not found", studentUuid)
-        ));
-        Course course = courseRepository.findById(courseUuid).orElseThrow(() -> new NotFoundException(
-                String.format("Course with uuid %s not found", courseUuid)
-        ));
-
-        student.getCourses().add(course);
-
-        course.getStudents().add(student);
-
-        studentRepository.save(student);
-
-        return student.getCourses().stream()
-                .map(CourseDTO::new)
-                .collect(Collectors.toList());
-    }
-
-    public void unassignCourse(UUID studentUuid, UUID courseUuid) {
-        Student student = studentRepository.findById(studentUuid).orElseThrow(() -> new NotFoundException(
-                String.format("Student with uuid %s not found", studentUuid)
-        ));
-        Course course = courseRepository.findById(courseUuid).orElseThrow(() -> new NotFoundException(
-                String.format("Course with uuid %s not found", courseUuid)
-        ));
-
-        student.getCourses().remove(course);
-
-        course.getStudents().remove(student);
-
-        studentRepository.save(student);
-    }
-
     public List<StudentDTO> getAll() {
         List<Student> students = studentRepository.findAll();
-        System.out.println(students);
         return students.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -129,16 +81,6 @@ public class StudentService {
         return mapToDTO(studentRepository.findById(uuid).orElseThrow(() -> new NotFoundException(
                 String.format("Student with uuid %s not found", uuid)
         )));
-    }
-
-    public List<CourseDTO> getStudentCourses(UUID studentUuid) {
-        Student student = studentRepository.findById(studentUuid)
-                .orElseThrow(() -> new NotFoundException(
-                        String.format("Student with uuid %s not found", studentUuid)
-                ));
-        return student.getCourses().stream()
-                .map(CourseDTO::new)
-                .collect(Collectors.toList());
     }
 
     public StudentDTO mapToDTO(Student student) {
