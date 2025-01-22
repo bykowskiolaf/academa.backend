@@ -2,9 +2,11 @@ package dev.bykowski.academa.services;
 
 import dev.bykowski.academa.dtos.Course.CourseDTO;
 import dev.bykowski.academa.dtos.Course.CreateCourseDTO;
+import dev.bykowski.academa.dtos.Course.FullCourseDTO;
 import dev.bykowski.academa.exceptions.NotFoundException;
 import dev.bykowski.academa.models.Course.Course;
 import dev.bykowski.academa.models.Student;
+import dev.bykowski.academa.models.User.Role;
 import dev.bykowski.academa.models.User.User;
 import dev.bykowski.academa.repositories.CourseRepository;
 import dev.bykowski.academa.repositories.StudentRepository;
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.*;
@@ -60,16 +63,23 @@ class CourseServiceTest {
     @Test
     void shouldGetCourseByUuid() {
         UUID courseUuid = UUID.randomUUID();
+        User instructor = User.builder()
+                .uuid(UUID.randomUUID())
+                .email("instructor@example.com")
+                .role(Role.INSTRUCTOR)
+                .build();
+
         Course course = Course.builder()
                 .uuid(courseUuid)
                 .name("Test Course")
                 .shortDescription("Test short description")
                 .longDescription("Test long description")
+                .instructor(instructor)
                 .build();
 
         when(courseRepository.findById(courseUuid)).thenReturn(Optional.of(course));
 
-        CourseDTO courseDTO = courseService.getByUuid(courseUuid);
+        FullCourseDTO courseDTO = courseService.getByUuid(courseUuid);
 
         assertNotNull(courseDTO);
         assertEquals("Test Course", courseDTO.getName());
@@ -148,11 +158,27 @@ class CourseServiceTest {
     void shouldDeleteCourse() {
         UUID courseUuid = UUID.randomUUID();
 
+        // Mock the existence check
+        when(courseRepository.existsById(courseUuid)).thenReturn(true);
+
+        // Mock the deletion behavior
         doNothing().when(courseRepository).deleteById(courseUuid);
 
+        // Act
         courseService.deleteCourse(courseUuid);
 
-        verify(courseRepository, times(1)).deleteById(courseUuid);
+        // Assert
+        verify(courseRepository, times(1)).existsById(courseUuid); // Ensure the existence was checked
+        verify(courseRepository, times(1)).deleteById(courseUuid); // Ensure deletion was called
+    }
+
+    @Test
+    void shouldThrowNotFoundExceptionWhenDeletingNonExistentCourse() {
+        UUID nonExistentCourseId = UUID.randomUUID();
+
+        Mockito.when(courseService.existsByUuid(nonExistentCourseId)).thenReturn(false);
+
+        assertThrows(NotFoundException.class, () -> courseService.deleteCourse(nonExistentCourseId));
     }
 
     @Test

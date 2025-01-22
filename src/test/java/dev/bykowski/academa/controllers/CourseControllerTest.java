@@ -202,14 +202,10 @@ class CourseControllerTest {
     void shouldReturnNotFoundWhenDeletingNonExistentCourse() throws Exception {
         UUID nonExistentCourseId = UUID.randomUUID();
 
-        User instructor = User.builder()
-                .uuid(UUID.randomUUID())
-                .email("test@bykowski.dev")
-                .build();
+        // Mock course existence check to return false
+        Mockito.when(courseService.existsByUuid(nonExistentCourseId)).thenReturn(false);
 
-        Mockito.when(userService.getByEmail("test@bykowski.dev")).thenReturn(instructor);
-
-        mockMvc.perform(delete("/courses/{id}", nonExistentCourseId))
+        mockMvc.perform(delete("/courses/{uuid}", nonExistentCourseId))
                 .andExpect(status().isNotFound());
     }
 
@@ -223,10 +219,13 @@ class CourseControllerTest {
                 .email("test@bykowski.dev")
                 .build();
 
+        // Mock course existence and user permissions
         Mockito.when(courseService.existsByUuid(courseId)).thenReturn(true);
         Mockito.when(userService.getByEmail("test@bykowski.dev")).thenReturn(instructor);
-        Mockito.when(courseService.isOwnerOrAdmin(eq(courseId), eq(instructor.getUuid()))).thenReturn(true);
+        Mockito.when(courseService.isOwnerOrAdmin(courseId, instructor.getUuid())).thenReturn(true);
+        Mockito.when(courseService.isLoggedInUserOwnerOrAdmin(courseId)).thenReturn(true);
 
+        // Perform the delete request
         mockMvc.perform(delete("/courses/{uuid}", courseId))
                 .andExpect(status().isNoContent());
     }
@@ -240,12 +239,12 @@ class CourseControllerTest {
                 .email("test@bykowski.dev")
                 .build();
 
-        Mockito.when(courseService.existsByUuid(courseId)).thenReturn(true);
-        Mockito.when(userService.getByEmail("test@bykowski.dev")).thenReturn(instructor);
-        Mockito.when(courseService.isOwnerOrAdmin(eq(courseId), eq(instructor.getUuid()))).thenReturn(false);
+        Mockito.when(courseService.existsByUuid(courseId)).thenReturn(true); // Simulate course exists
+        Mockito.when(userService.getByEmail("test@bykowski.dev")).thenReturn(instructor); // Mock user
+        Mockito.when(courseService.isOwnerOrAdmin(courseId, instructor.getUuid())).thenReturn(false); // User is not the owner/admin
 
         mockMvc.perform(delete("/courses/{uuid}", courseId))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden()); // Expect 403 Forbidden
     }
 
     @Test

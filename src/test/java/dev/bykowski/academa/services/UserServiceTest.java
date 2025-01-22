@@ -2,8 +2,10 @@ package dev.bykowski.academa.services;
 
 import dev.bykowski.academa.dtos.User.RegisterUserDTO;
 import dev.bykowski.academa.exceptions.NotFoundException;
+import dev.bykowski.academa.models.Student;
 import dev.bykowski.academa.models.User.Role;
 import dev.bykowski.academa.models.User.User;
+import dev.bykowski.academa.repositories.StudentRepository;
 import dev.bykowski.academa.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,9 @@ class UserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private StudentRepository studentRepository;
+
     private UUID userUuid;
 
     private String email;
@@ -41,7 +46,7 @@ class UserServiceTest {
 
     @BeforeEach
     void setup() {
-        MockitoAnnotations.openMocks(this);
+        MockitoAnnotations.openMocks(this); // Initialize mocks
         userUuid = UUID.randomUUID();
         email = "user@example.com";
         plainPassword = "plainPassword123";
@@ -50,15 +55,16 @@ class UserServiceTest {
 
     @Test
     void shouldRegisterUser() {
+        // Arrange
         RegisterUserDTO registerUserDTO = RegisterUserDTO.builder()
                 .email(email)
                 .password(plainPassword)
+                .confirmPassword(plainPassword)
                 .givenName("John")
                 .familyName("Doe")
                 .build();
 
-        User savedUser = User.builder()
-                .uuid(userUuid)
+        Student savedStudent = Student.builder()
                 .email(registerUserDTO.getEmail())
                 .password(encodedPassword)
                 .givenName(registerUserDTO.getGivenName())
@@ -68,11 +74,15 @@ class UserServiceTest {
 
         when(userRepository.findByEmail(registerUserDTO.getEmail())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(registerUserDTO.getPassword())).thenReturn(encodedPassword);
-        when(userRepository.save(any(User.class))).thenReturn(savedUser);
+        when(studentRepository.save(any(Student.class))).thenReturn(savedStudent);
 
+        // Act
+        userService.register(registerUserDTO);
+
+        // Assert
         verify(userRepository, times(1)).findByEmail(registerUserDTO.getEmail());
         verify(passwordEncoder, times(1)).encode(plainPassword);
-        verify(userRepository, times(1)).save(any(User.class));
+        verify(studentRepository, times(1)).save(any(Student.class));
     }
 
     @Test
@@ -187,6 +197,7 @@ class UserServiceTest {
                 .uuid(userUuid)
                 .email(email)
                 .password(encodedPassword)
+                .role(Role.STUDENT)
                 .build();
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));

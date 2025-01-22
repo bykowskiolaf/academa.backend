@@ -4,7 +4,6 @@ import dev.bykowski.academa.dtos.Course.CourseDTO;
 import dev.bykowski.academa.dtos.Course.CreateCourseDTO;
 import dev.bykowski.academa.dtos.Course.FullCourseDTO;
 import dev.bykowski.academa.dtos.Student.StudentDTO;
-import dev.bykowski.academa.exceptions.ForbiddenActionException;
 import dev.bykowski.academa.exceptions.NotFoundException;
 import dev.bykowski.academa.models.Course.Course;
 import dev.bykowski.academa.models.Student;
@@ -19,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.UUID;
@@ -129,21 +127,11 @@ public class CourseService {
                 .collect(Collectors.toList());
     }
 
-    public Boolean isOwner(UUID courseUuid, UUID instructorUuid) {
-
-        Course course = courseRepository.findById(courseUuid)
-                .orElseThrow(() -> new NotFoundException(
-                        String.format("Course with uuid %s not found", courseUuid)
-                ));
-
-        return course.getInstructor().getUuid().equals(instructorUuid);
-    }
-
-    public Boolean isOwnerOrAdmin(UUID courseUuid, UUID instructorUuid) {
-        return isOwner(courseUuid, instructorUuid) || userService.isAdmin(instructorUuid);
-    }
 
     public void deleteCourse(UUID uuid) {
+        if (!existsByUuid(uuid)) {
+            throw new NotFoundException("Course with given uuid does not exist");
+        }
         courseRepository.deleteById(uuid);
     }
 
@@ -168,16 +156,29 @@ public class CourseService {
                 .collect(Collectors.toList());
     }
 
-    public void checkAdminOrOwner(@PathVariable UUID uuid) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User instructor = userService.getByEmail(auth.getName());
+    public Boolean isOwner(UUID courseUuid, UUID instructorUuid) {
 
-        if (!existsByUuid(uuid)) {
+        Course course = courseRepository.findById(courseUuid)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("Course with uuid %s not found", courseUuid)
+                ));
+
+        return course.getInstructor().getUuid().equals(instructorUuid);
+    }
+
+    public Boolean isOwnerOrAdmin(UUID courseUuid, UUID instructorUuid) {
+        return isOwner(courseUuid, instructorUuid) || userService.isAdmin(instructorUuid);
+    }
+
+    public Boolean isLoggedInUserOwnerOrAdmin(UUID courseUuid) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getByEmail(auth.getName());
+
+        if (!existsByUuid(courseUuid)) {
             throw new NotFoundException("Course with given uuid does not exist");
         }
 
-        if (!isOwnerOrAdmin(uuid, instructor.getUuid())) {
-            throw new ForbiddenActionException("You do not have permission to delete this course");
-        }
+        // Check if user is owner or admin
+        return isOwnerOrAdmin(courseUuid, user.getUuid());
     }
 }

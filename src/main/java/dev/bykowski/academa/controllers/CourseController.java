@@ -79,7 +79,13 @@ public class CourseController {
     @DeleteMapping("/{uuid}")
     @RolesAllowed("INSTRUCTOR")
     public ResponseEntity<Void> deleteCourse(@PathVariable UUID uuid) {
-        courseService.checkAdminOrOwner(uuid);
+        if (!courseService.existsByUuid(uuid)) {
+            throw new NotFoundException("Course with given uuid does not exist");
+        }
+
+        if (!courseService.isLoggedInUserOwnerOrAdmin(uuid)) {
+            throw new ForbiddenActionException("You do not have permission to delete this course");
+        }
 
         courseService.deleteCourse(uuid);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -88,7 +94,9 @@ public class CourseController {
     @GetMapping("/{uuid}/students")
     @RolesAllowed("INSTRUCTOR")
     public ResponseEntity<List<StudentDTO>> getCourseStudents(@PathVariable UUID uuid) {
-        courseService.checkAdminOrOwner(uuid);
+        if (!courseService.isLoggedInUserOwnerOrAdmin(uuid)) {
+            throw new ForbiddenActionException("You do not have permission to view this course's students");
+        }
 
         List<StudentDTO> students = courseService.getCourseStudents(uuid);
 
