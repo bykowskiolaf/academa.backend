@@ -1,7 +1,7 @@
 # Academa - Online Learning Management Systems
 
 ### Overview
-Academa is a Spring Boot-based application for managing courses, students, and instructors in an educational setting. It uses PostgreSQL and Docker Compose for deployment.
+Academa is a project i started for a java course at CVUT. Spring Boot-based application for managing courses, students, and instructors in an educational setting. It uses PostgreSQL and Docker Compose for deployment.
 
 ### Tech Stack
 - **Backend**: Spring Boot
